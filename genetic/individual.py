@@ -1,4 +1,4 @@
-class Individual():
+class Individual:
   """Represents an image"""
   def __init__(self, **kwargs):
     self.genome = kwargs['genome'] # List of genes
