@@ -1,4 +1,4 @@
-class Gene(object):
+class Gene():
   """Represents a circle"""
   def __init__(self, **kwargs):
     self.x = kwargs['x'] # x coordinate
