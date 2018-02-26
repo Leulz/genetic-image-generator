@@ -3,11 +3,12 @@ from PIL import Image, ImageDraw
 from scipy.misc import imread
 from scipy.linalg import norm
 from scipy import sum, average
+from numpy import array
 
 #TODO Move these functions to another file.
 def compare(img1, img2):
-    pix1 = numpy.array(img1)
-    pix2 = numpy.array(img2)
+    pix1 = array(img1)
+    pix2 = array(img2)
     img1 = to_grayscale(pix1.astype(float))
     img2 = to_grayscale(pix2.astype(float))
     n_0 = compare_images(img1, img2)
@@ -45,5 +46,6 @@ class FitnessFunction:
     for gene in individual.genome:
       pos = (gene.x-gene.r, gene.y-gene.r, gene.x+gene.r, gene.y+gene.r)
       dr.ellipse(pos,fill=gene.color)
+    #im.save("~/ind.jpeg", "JPEG") #in case you want to save the individual for tests' purposes
     
     return 1 - compare(self.target_image, im)

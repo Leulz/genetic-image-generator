@@ -4,6 +4,7 @@ from genetic.gene import Gene
 from genetic.individual import Individual
 from genetic.population import Population
 from genetic.operations.crossover import * 
+from genetic.operations.fitness import FitnessFunction
 
 # These need to be set when the target image has been received.
 width = 0
@@ -44,10 +45,14 @@ if __name__ == "__main__":
   target_image_path = input("Insert path to the image to be used as the target: ")
   try:
     target_image = Image.open(target_image_path)
+    f = FitnessFunction(target_image)
+
     width, height = target_image.size
     number_of_indidivuals = int(input("Insert the number of images you want in the population: "))
     number_of_genes = int(input("Insert the number of circles you want in the image: "))
     initial_population = create_population(number_of_indidivuals, number_of_genes)
+    
+    #use f.calculate_fitness(individual) to get the fitness of an individual
     #start iterating over generations
 
 
