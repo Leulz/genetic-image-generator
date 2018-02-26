@@ -5,4 +5,4 @@ class Gene:
     self.y = kwargs['y'] # y coordinate
     self.z = kwargs['z'] # z coordinate
     self.r = kwargs['r'] # Radius
-    self.rgb = kwargs['rgb'] # Color
+    self.color = kwargs['color'] # Color

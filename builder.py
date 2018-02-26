@@ -10,7 +10,7 @@ width = 0
 height = 0
 
 depth = 500
-max_rgb_value = 255
+#max_rgb_value = 255
 
 def create_population(individual_num, genes_num):
   individual_list = []
@@ -35,9 +35,9 @@ def create_gene():
   # The circle's radius will have at least 3 pixels of length, at most one fifth of the width or height 
   # depending on which is smaller. These values were arbitrarily chosen and are subject to change.
   r = random.randrange(3, int(min(width,height)/5))
-  rgb = (random.randrange(max_rgb_value),) * 3
+  #rgb = (random.randrange(max_rgb_value),) * 3
 
-  return Gene(x=x, y=y, z=z, r=r, rgb=rgb)
+  return Gene(x=x, y=y, z=z, r=r)
 
 if __name__ == "__main__":
   target_image_path = input("Insert path to the image to be used as the target: ")
