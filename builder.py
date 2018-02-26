@@ -35,9 +35,10 @@ def create_gene():
   # The circle's radius will have at least 3 pixels of length, at most one fifth of the width or height 
   # depending on which is smaller. These values were arbitrarily chosen and are subject to change.
   r = random.randrange(3, int(min(width,height)/5))
+  color = random.randrange(255)
   #rgb = (random.randrange(max_rgb_value),) * 3
 
-  return Gene(x=x, y=y, z=z, r=r)
+  return Gene(x=x, y=y, z=z, r=r, color=color)
 
 if __name__ == "__main__":
   target_image_path = input("Insert path to the image to be used as the target: ")
