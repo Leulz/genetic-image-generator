@@ -5,6 +5,7 @@ from genetic.individual import Individual
 from genetic.population import Population
 from genetic.operations.crossover import * 
 from genetic.operations.fitness import FitnessFunction
+from genetic.selection.selector import pick_individual
 
 # These need to be set when the target image has been received.
 width = 0
