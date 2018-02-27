@@ -1,5 +1,5 @@
 import sys, random
-from PIL import Image
+from PIL import Image, ImageDraw
 from genetic.gene import Gene
 from genetic.individual import Individual
 from genetic.population import Population
@@ -42,6 +42,19 @@ def create_gene():
 
   return Gene(x=x, y=y, z=z, r=r, color=color)
 
+def get_next_population(current_population, fitnessFunction):
+  individual_list = sorted(current_population.individuals, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
+  next_individual_list = []
+  next_individual_list.append(individual_list[0])
+  while len(next_individual_list) < len(individual_list):
+    parent1 = pick_individual(individual_list)
+    parent2 = pick_individual(individual_list)
+    next_individual = reproduce(parent1, parent2)
+    next_individual_list.append(next_individual)
+  next_individual_list = sorted(next_individual_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
+  return Population(individuals=next_individual_list)
+
+
 if __name__ == "__main__":
   target_image_path = input("Insert path to the image to be used as the target: ")
   try:
@@ -51,8 +64,24 @@ if __name__ == "__main__":
     width, height = target_image.size
     number_of_indidivuals = int(input("Insert the number of images you want in the population: "))
     number_of_genes = int(input("Insert the number of circles you want in the image: "))
-    initial_population = create_population(number_of_indidivuals, number_of_genes)
-    
+    current_population = create_population(number_of_indidivuals, number_of_genes)
+    count = 0
+    saves=0
+    while True:
+      print("Looping...")
+      current_population = get_next_population(current_population, f)
+      if count == 0:
+        im = Image.new("L", (target_image.width, target_image.height))
+        dr = ImageDraw.Draw(im)
+        for gene in current_population.individuals[0].genome:
+          pos = (gene.x-gene.r, gene.y-gene.r, gene.x+gene.r, gene.y+gene.r)
+          dr.ellipse(pos,fill=gene.color)
+        filename = "/home/leo/ind%d.jpeg" % saves
+        im.save(filename, "JPEG")
+        print("saved")
+        im.close()
+        saves += 1
+      count = (count + 1) % 100
     #use f.calculate_fitness(individual) to get the fitness of an individual
     #start iterating over generations
 

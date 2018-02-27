@@ -1,7 +1,7 @@
 import sys, random
 
 sys.path.insert(0, '../')
-from genetic import individual
+from genetic.individual import Individual
 
 def reproduce(ind1, ind2):
   genes1 = ind1.genome
@@ -10,7 +10,7 @@ def reproduce(ind1, ind2):
   child_genome = []
 
   #add chance of mutation here
-  for i in range(genes1):
+  for i in range(len(genes1)):
     chance = random.randrange(10)
     if chance<5:
       child_genome.append(genes1[i])
