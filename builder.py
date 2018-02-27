@@ -6,6 +6,7 @@ from genetic.population import Population
 from genetic.operations.crossover import * 
 from genetic.operations.fitness import FitnessFunction
 from genetic.selection.selector import pick_individual
+from genetic.operations.mutator import Mutator
 
 # These need to be set when the target image has been received.
 width = 0
@@ -42,18 +43,20 @@ def create_gene():
 
   return Gene(x=x, y=y, z=z, r=r, color=color)
 
-def get_next_population(current_population, fitnessFunction):
+def get_next_population(current_population, mutator, fitnessFunction):
   individual_list = sorted(current_population.individuals, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
   next_individual_list = []
+  print("first in list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[0])))
+  print("last in list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[-1])))
   next_individual_list.append(individual_list[0])
   while len(next_individual_list) < len(individual_list):
     parent1 = pick_individual(individual_list)
     parent2 = pick_individual(individual_list)
-    next_individual = reproduce(parent1, parent2)
+    next_individual = reproduce(parent1, parent2, mutator)
+    print((lambda individual: fitnessFunction.calculate_fitness(individual))(next_individual))
     next_individual_list.append(next_individual)
   next_individual_list = sorted(next_individual_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
   return Population(individuals=next_individual_list)
-
 
 if __name__ == "__main__":
   target_image_path = input("Insert path to the image to be used as the target: ")
@@ -64,12 +67,14 @@ if __name__ == "__main__":
     width, height = target_image.size
     number_of_indidivuals = int(input("Insert the number of images you want in the population: "))
     number_of_genes = int(input("Insert the number of circles you want in the image: "))
+    mutation_chance = float(input("Insert the mutation chance: "))
     current_population = create_population(number_of_indidivuals, number_of_genes)
     count = 0
-    saves=0
+    saves = 0
+    mutator = Mutator(width, height, mutation_chance)
     while True:
       print("Looping...")
-      current_population = get_next_population(current_population, f)
+      current_population = get_next_population(current_population, mutator, f)
       if count == 0:
         im = Image.new("L", (target_image.width, target_image.height))
         dr = ImageDraw.Draw(im)
@@ -84,8 +89,6 @@ if __name__ == "__main__":
       count = (count + 1) % 100
     #use f.calculate_fitness(individual) to get the fitness of an individual
     #start iterating over generations
-
-
   except IOError:
     print("Error when opening image!")
     sys.exit(1)

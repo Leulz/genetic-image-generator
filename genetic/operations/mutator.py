@@ -1,18 +1,20 @@
 import random
 
+#add constraints to how large a circle can be
 class Mutator:
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, prob):
         self.width = width
         self.height = height
+        self.prob = prob
 
-    def mutate(self, gene, prob):
+    def mutate(self, gene):
         #for moving/size
-        maxDelta = ((self.width + self.height) / 2) / 2
-        halfDelta = maxDelta / 2 + 2
+        maxDelta = int(((self.width + self.height) / 2) / 2)
+        halfDelta = int(maxDelta / 2 + 2)
         r_value = random.random()
 
-        if r_value > prob:
+        if r_value > self.prob:
             return gene
 
         mutationType = random.randint(0, 4)
