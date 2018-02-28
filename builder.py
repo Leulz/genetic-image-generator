@@ -37,48 +37,62 @@ def create_gene():
   z = random.randrange(depth)
   # The circle's radius will have at least 3 pixels of length, at most one fifth of the width or height 
   # depending on which is smaller. These values were arbitrarily chosen and are subject to change.
-  r = random.randrange(3, int(min(width,height)/5))
+  r = random.randrange(5, int(min(width,height)/5))
   color = random.randrange(255)
   #rgb = (random.randrange(max_rgb_value),) * 3
 
   return Gene(x=x, y=y, z=z, r=r, color=color)
 
+def print_gene(gene):
+  print("x is %d, y is %d, z is %d, r is %d, color %d" % (gene.x, gene.y, gene.z, gene.r, gene.color))
+
 def get_next_population(current_population, mutator, fitnessFunction):
-  individual_list = sorted(current_population.individuals, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
+  individual_list = current_population.individuals
+  print("first in arg list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[0])))
+  print("second in arg list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[1])))
+  print("third in arg list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[2])))
+  print("fourth in arg list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[3])))
   next_individual_list = []
-  print("first in list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[0])))
-  print("last in list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[-1])))
   next_individual_list.append(individual_list[0])
   while len(next_individual_list) < len(individual_list):
     parent1 = pick_individual(individual_list)
     parent2 = pick_individual(individual_list)
     next_individual = reproduce(parent1, parent2, mutator)
-    print((lambda individual: fitnessFunction.calculate_fitness(individual))(next_individual))
+    # print((lambda individual: fitnessFunction.calculate_fitness(individual))(next_individual))
     next_individual_list.append(next_individual)
+  # for ind in next_individual_list:
+  #     print("ind has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(ind)))
   next_individual_list = sorted(next_individual_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
+  # for ind in next_individual_list:
+  #     print("ind has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(ind)))
   return Population(individuals=next_individual_list)
 
 if __name__ == "__main__":
   target_image_path = input("Insert path to the image to be used as the target: ")
   try:
     target_image = Image.open(target_image_path)
-    f = FitnessFunction(target_image)
+    fitnessFunction = FitnessFunction(target_image)
 
     width, height = target_image.size
     number_of_indidivuals = int(input("Insert the number of images you want in the population: "))
     number_of_genes = int(input("Insert the number of circles you want in the image: "))
     mutation_chance = float(input("Insert the mutation chance: "))
     current_population = create_population(number_of_indidivuals, number_of_genes)
+    ind_list = current_population.individuals
+    ind_list = sorted(ind_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
+    current_population.individuals = ind_list
     count = 0
     saves = 0
     mutator = Mutator(width, height, mutation_chance)
     while True:
       print("Looping...")
-      current_population = get_next_population(current_population, mutator, f)
+      current_population = get_next_population(current_population, mutator, fitnessFunction)
       if count == 0:
         im = Image.new("L", (target_image.width, target_image.height))
         dr = ImageDraw.Draw(im)
-        for gene in current_population.individuals[0].genome:
+        genome = current_population.individuals[0].genome
+        genome = sorted(genome, key=(lambda g : g.z))
+        for gene in genome:
           pos = (gene.x-gene.r, gene.y-gene.r, gene.x+gene.r, gene.y+gene.r)
           dr.ellipse(pos,fill=gene.color)
         filename = "/home/leo/ind%d.jpeg" % saves

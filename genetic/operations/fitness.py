@@ -43,7 +43,8 @@ class FitnessFunction:
     im = Image.new("L", (self.target_image.width, self.target_image.height))
     dr = ImageDraw.Draw(im)
     
-    for gene in individual.genome:
+    genome = sorted(genome, key=(lambda g : g.z))
+    for gene in genome:
       pos = (gene.x-gene.r, gene.y-gene.r, gene.x+gene.r, gene.y+gene.r)
       dr.ellipse(pos,fill=gene.color)
     #im.save("~/ind.jpeg", "JPEG") #in case you want to save the individual for tests' purposes
