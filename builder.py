@@ -1,4 +1,5 @@
 import signal
+import pickle
 import sys, random
 from PIL import Image, ImageDraw
 from genetic.gene import Gene
@@ -20,7 +21,15 @@ current_population = None
 
 def signal_handler(signal, frame):
   print "Hey buddy, you just pressed CTRL + C! Laters!"
+  savePopulation(current_population)
   sys.exit(0)
+
+def savePopulation(current_population):
+  pickle.dump(current_population, open( "saved_population.p", "wb" ))
+
+def loadPopulation():
+  current_population = pickle.load( open( "save.p", "rb" ) )
+  return current_population
 
 def create_population(individual_num, genes_num):
   individual_list = []
