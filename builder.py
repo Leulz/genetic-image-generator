@@ -16,6 +16,8 @@ height = 0
 depth = 500
 #max_rgb_value = 255
 
+current_population = None
+
 def signal_handler(signal, frame):
   print "Hey buddy, you just pressed CTRL + C! Laters!"
   sys.exit(0)
@@ -89,33 +91,39 @@ if __name__ == "__main__":
 
     current_population = create_population(number_of_indidivuals, number_of_genes)
 
-    ind_list = current_population.individuals
-    ind_list = sorted(ind_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
-    current_population.individuals = ind_list
+    if(current_population is not None):
+      ind_list = current_population.individuals
+      ind_list = sorted(ind_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
+      current_population.individuals = ind_list
 
-    count = 0
-    saves = 0
-    mutator = Mutator(width, height, mutation_chance)
+      count = 0
+      saves = 0
+      mutator = Mutator(width, height, mutation_chance)
 
-    while True:
-      print("Looping...")
-      current_population = get_next_population(current_population, mutator, fitnessFunction)
-      if count == 0:
-        im = Image.new("L", (target_image.width, target_image.height))
-        dr = ImageDraw.Draw(im)
-        genome = current_population.individuals[0].genome
-        genome = sorted(genome, key=(lambda g : g.z))
-        for gene in genome:
-          pos = (gene.x-gene.r, gene.y-gene.r, gene.x+gene.r, gene.y+gene.r)
-          dr.ellipse(pos,fill=gene.color)
-        filename = "ind%d.jpeg" % saves
-        im.save(filename, "JPEG")
-        print("saved")
-        im.close()
-        saves += 1
-      count = (count + 1) % 100
+      while True:
+        print("Looping...")
+        current_population = get_next_population(current_population, mutator, fitnessFunction)
+        if count == 0:
+          im = Image.new("L", (target_image.width, target_image.height))
+          dr = ImageDraw.Draw(im)
+          genome = current_population.individuals[0].genome
+          genome = sorted(genome, key=(lambda g : g.z))
+          for gene in genome:
+            pos = (gene.x-gene.r, gene.y-gene.r, gene.x+gene.r, gene.y+gene.r)
+            dr.ellipse(pos,fill=gene.color)
+          filename = "ind%d.jpeg" % saves
+          im.save(filename, "JPEG")
+          print("saved")
+          im.close()
+          saves += 1
+        count = (count + 1) % 100
+    else:
+      raise TypeError
     #use f.calculate_fitness(individual) to get the fitness of an individual
     #start iterating over generations
   except IOError:
     print("Error when opening image!")
+    sys.exit(1)
+  except TypeError:
+    print("Null object error!")
     sys.exit(1)
