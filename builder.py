@@ -1,3 +1,4 @@
+import signal
 import sys, random
 from PIL import Image, ImageDraw
 from genetic.gene import Gene
@@ -14,6 +15,10 @@ height = 0
 
 depth = 500
 #max_rgb_value = 255
+
+def signal_handler(signal, frame):
+  print "Hey buddy, you just pressed CTRL + C! Laters!"
+  sys.exit(0)
 
 def create_population(individual_num, genes_num):
   individual_list = []
@@ -68,22 +73,30 @@ def get_next_population(current_population, mutator, fitnessFunction):
   return Population(individuals=next_individual_list)
 
 if __name__ == "__main__":
+  signal.signal(signal.SIGINT, signal_handler)
+
   target_image_path = input("Insert path to the image to be used as the target: ")
+
   try:
     target_image = Image.open(target_image_path)
     fitnessFunction = FitnessFunction(target_image)
 
     width, height = target_image.size
+
     number_of_indidivuals = int(input("Insert the number of images you want in the population: "))
     number_of_genes = int(input("Insert the number of circles you want in the image: "))
     mutation_chance = float(input("Insert the mutation chance: "))
+
     current_population = create_population(number_of_indidivuals, number_of_genes)
+
     ind_list = current_population.individuals
     ind_list = sorted(ind_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
     current_population.individuals = ind_list
+
     count = 0
     saves = 0
     mutator = Mutator(width, height, mutation_chance)
+
     while True:
       print("Looping...")
       current_population = get_next_population(current_population, mutator, fitnessFunction)
@@ -95,7 +108,7 @@ if __name__ == "__main__":
         for gene in genome:
           pos = (gene.x-gene.r, gene.y-gene.r, gene.x+gene.r, gene.y+gene.r)
           dr.ellipse(pos,fill=gene.color)
-        filename = "/home/leo/ind%d.jpeg" % saves
+        filename = "ind%d.jpeg" % saves
         im.save(filename, "JPEG")
         print("saved")
         im.close()
