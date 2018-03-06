@@ -1,4 +1,4 @@
-import sys, random
+import sys, os, random
 from PIL import Image, ImageDraw
 from genetic.gene import Gene
 from genetic.individual import Individual
@@ -11,7 +11,6 @@ from genetic.operations.mutator import Mutator
 # These need to be set when the target image has been received.
 width = 0
 height = 0
-
 depth = 500
 #max_rgb_value = 255
 
@@ -35,11 +34,8 @@ def create_gene():
   x = random.randrange(height)
   y = random.randrange(width)
   z = random.randrange(depth)
-  # The circle's radius will have at least 3 pixels of length, at most one fifth of the width or height 
-  # depending on which is smaller. These values were arbitrarily chosen and are subject to change.
-  r = random.randrange(5, int(min(width,height)/5))
-  color = random.randrange(255)
-  #rgb = (random.randrange(max_rgb_value),) * 3
+  r = random.randrange(1, int(min(width,height)/2))
+  color = random.randrange(256)
 
   return Gene(x=x, y=y, z=z, r=r, color=color)
 
@@ -48,29 +44,25 @@ def print_gene(gene):
 
 def get_next_population(current_population, mutator, fitnessFunction):
   individual_list = current_population.individuals
-  print("first in arg list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[0])))
-  print("second in arg list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[1])))
-  print("third in arg list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[2])))
-  print("fourth in arg list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(individual_list[3])))
   next_individual_list = []
   next_individual_list.append(individual_list[0])
   while len(next_individual_list) < len(individual_list):
-    parent1 = pick_individual(individual_list)
-    parent2 = pick_individual(individual_list)
+    parent1, i = pick_individual(individual_list, -1)
+    parent2, i = pick_individual(individual_list, i)
     next_individual = reproduce(parent1, parent2, mutator)
-    # print((lambda individual: fitnessFunction.calculate_fitness(individual))(next_individual))
     next_individual_list.append(next_individual)
-  # for ind in next_individual_list:
-  #     print("ind has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(ind)))
   next_individual_list = sorted(next_individual_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
-  # for ind in next_individual_list:
-  #     print("ind has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(ind)))
+  # print("first in list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(next_individual_list[0])))
+  # print("last in list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(next_individual_list[len(next_individual_list)-1])))
   return Population(individuals=next_individual_list)
 
 if __name__ == "__main__":
+  os.system("find . -name \*.pyc -delete")
   target_image_path = input("Insert path to the image to be used as the target: ")
   try:
     target_image = Image.open(target_image_path)
+    target_image.load()
+    target_image = target_image.convert('L')
     fitnessFunction = FitnessFunction(target_image)
 
     width, height = target_image.size
@@ -90,6 +82,7 @@ if __name__ == "__main__":
       if count == 0:
         im = Image.new("L", (target_image.width, target_image.height))
         dr = ImageDraw.Draw(im)
+        print("Best one has fitness: %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(current_population.individuals[0])))
         genome = current_population.individuals[0].genome
         genome = sorted(genome, key=(lambda g : g.z))
         for gene in genome:
@@ -100,9 +93,7 @@ if __name__ == "__main__":
         print("saved")
         im.close()
         saves += 1
-      count = (count + 1) % 100
-    #use f.calculate_fitness(individual) to get the fitness of an individual
-    #start iterating over generations
+      count = (count + 1) % 20
   except IOError:
     print("Error when opening image!")
     sys.exit(1)

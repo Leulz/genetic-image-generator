@@ -1,52 +1,21 @@
 from PIL import Image, ImageDraw
-
-from scipy.misc import imread
-from scipy.linalg import norm
-from scipy import sum, average
+from skimage.measure import compare_ssim as ssim
 from numpy import array
 
-#TODO Move these functions to another file.
 def compare(img1, img2):
-    pix1 = array(img1)
-    pix2 = array(img2)
-    img1 = to_grayscale(pix1.astype(float))
-    img2 = to_grayscale(pix2.astype(float))
-    n_0 = compare_images(img1, img2)
-    
-    return n_0*1.0/img1.size
-
-def compare_images(img1, img2):
-    img1 = normalize(img1)
-    img2 = normalize(img2)
-    diff = img1 - img2  # elementwise for scipy arrays
-    z_norm = norm(diff.ravel(), 0)  # Zero norm
-    
-    return z_norm
-
-def to_grayscale(arr):
-    "If arr is a color image (3D array), convert it to grayscale (2D array)."
-    if len(arr.shape) == 3:
-        return average(arr, -1)  # average over the last axis (color channels)
-    else:
-        return arr
-
-def normalize(arr):
-    rng = arr.max()-arr.min()
-    amin = arr.min()
-    return (arr-amin)*255/rng
+    cv_img1 = array(img1)
+    cv_img2 = array(img2)
+    return ssim(cv_img1, cv_img2)
 
 class FitnessFunction:
   def __init__(self, target_image):
     self.target_image = target_image
   def calculate_fitness(self, individual):
-    genome = individual.genome
     im = Image.new("L", (self.target_image.width, self.target_image.height))
     dr = ImageDraw.Draw(im)
-    
-    genome = sorted(genome, key=(lambda g : g.z))
+    genome = sorted(individual.genome, key=(lambda g : g.z))
     for gene in genome:
       pos = (gene.x-gene.r, gene.y-gene.r, gene.x+gene.r, gene.y+gene.r)
       dr.ellipse(pos,fill=gene.color)
-    #im.save("~/ind.jpeg", "JPEG") #in case you want to save the individual for tests' purposes
     
-    return 1 - compare(self.target_image, im)
+    return compare(self.target_image, im)
