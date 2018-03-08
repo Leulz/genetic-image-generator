@@ -20,12 +20,11 @@ depth = 500
 current_population = None
 
 def print_menu():
-  print "\nMENU:"
-  print "1 - Create new population."
-  print "2 - Load a saved population."
+  print("\nMENU:")
+  print("1 - Create new population.")
+  print("2 - Load a saved population.")
 
 def signal_handler(signal, frame):
-  print "Hey buddy, you just pressed CTRL + C! Laters!"
   save_population(current_population)
   sys.exit(0)
 
@@ -91,7 +90,7 @@ def get_next_population(current_population, mutator, fitnessFunction):
 if __name__ == "__main__":
   signal.signal(signal.SIGINT, signal_handler)
 
-  target_image_path = raw_input("Insert the path to the image to be used as the target: ")
+  target_image_path = input("Insert the path to the image to be used as the target: ")
 
   try:
     target_image = Image.open(target_image_path)
@@ -102,24 +101,23 @@ if __name__ == "__main__":
     #Prints the application menu.
     print_menu()
 
-    user_option = input("What do you want to do? Type 1 or 2: ")
+    user_option = int(input("What do you want to do? Type 1 or 2: "))
+
+    print(user_option)
+    print(type(user_option))
 
     number_of_indidivuals = 0
     number_of_genes = 0
     mutation_chance = 0.0
 
     if(user_option == 1):
-      print "\nOption is equal to 1."
-
       number_of_indidivuals = int(input("Insert the number of images you want in the population: "))
       number_of_genes = int(input("Insert the number of circles you want in the image: "))
       mutation_chance = float(input("Insert the mutation chance: "))
 
       current_population = create_population(number_of_indidivuals, number_of_genes)
     elif(user_option == 2):
-      print "\nOption is equal to 2."
-
-      target_file_path = raw_input("Insert the path to the file on which the population is saved: ")
+      target_file_path = input("Insert the path to the file on which the population is saved: ")
       mutation_chance = float(input("Insert the mutation chance: "))
 
       current_population = load_population(target_file_path)
