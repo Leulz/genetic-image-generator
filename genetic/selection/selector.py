@@ -1,9 +1,14 @@
 from random import uniform
 
-#picks an individual from a list of individuals.
-#assumes the list is sorted, with the most fit individuals
-#being at the beginning of the list.
+
 def pick_individual(individual_list, partner_index):
+  '''
+  Picks an individual
+
+  Picks an individual from a list of individuals.
+  Assumes the list is sorted, with the most fit individuals
+  being at the beginning of the list.
+  '''
   list_length = len(individual_list)
   bias = 0.6 * list_length
   for i in range(1, list_length):

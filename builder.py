@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw
 from genetic.gene import Gene
 from genetic.individual import Individual
 from genetic.population import Population
-from genetic.operations.crossover import * 
+from genetic.operations.crossover import *
 from genetic.operations.fitness import FitnessFunction
 from genetic.selection.selector import pick_individual
 from genetic.operations.mutator import Mutator
@@ -128,8 +128,6 @@ def get_next_population(current_population, mutator, fitnessFunction):
     next_individual_list.append(next_individual)
 
   next_individual_list = sorted(next_individual_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
-  # print("first in list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(next_individual_list[0])))
-  # print("last in list has %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(next_individual_list[len(next_individual_list)-1])))
 
   return Population(individuals=next_individual_list)
 
@@ -157,10 +155,12 @@ if __name__ == "__main__":
       number_of_indidivuals = int(input("Insert the number of images you want in the population: "))
       number_of_genes = int(input("Insert the number of circles you want in the image: "))
       mutation_chance = float(input("Insert the mutation chance: "))
+      generated_images_path = input("Insert the path that you want the population to be saved: ")
 
       current_population = create_population(number_of_indidivuals, number_of_genes)
     elif(user_option == 2):
       target_file_path = input("Insert the path to the file on which the population is saved: ")
+      generated_images_path = input("Insert the path that you want the population to be saved: ")
 
       current_population, mutation_chance = load_population(target_file_path)
     else:
@@ -190,7 +190,7 @@ if __name__ == "__main__":
             pos = (gene.x-gene.r, gene.y-gene.r, gene.x+gene.r, gene.y+gene.r)
             dr.ellipse(pos,fill=gene.color)
 
-          filename = "/home/capacitacao-asus/Desktop/genetic-image-generator/generated_images/image_%d.jpeg" % saves
+          filename = generated_images_path + "/image_%d.jpeg" % saves
           im.save(filename, "JPEG")
           print("saved")
           im.close()
