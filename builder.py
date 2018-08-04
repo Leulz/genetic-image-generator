@@ -1,3 +1,5 @@
+import requests
+import json
 import signal
 import pickle
 import sys, os, random
@@ -6,10 +8,11 @@ from genetic.gene import Gene
 from genetic.individual import Individual
 from genetic.population import Population
 from genetic.operations.crossover import *
-from genetic.operations.fitness import FitnessFunction
 from genetic.selection.selector import pick_individual
 from genetic.operations.mutator import Mutator
 from genetic.record import Record
+
+LOAD_BALANCER_URL = '127.0.0.1:5000'
 
 # These need to be set when the target image has been received.
 width = 0
@@ -20,6 +23,15 @@ depth = 500
 current_population = None
 mutation_chance = 0.0
 
+def calculate_fitness(individual):
+  with open('individual', 'wb') as individual_file:
+    pickle.dump(individual, individual_file, pickle.HIGHEST_PROTOCOL)
+
+  multiple_files = [('files', ('individual', open('individual', 'rb'))), ('files', ('image', open('image.jpg', 'rb')))]
+  r = requests.post(LOAD_BALANCER_URL, files=multiple_files)
+  fitness = json.loads(r.text)['fitness']
+
+  return int(fitness)
 
 def print_menu():
   '''
@@ -111,7 +123,7 @@ def print_gene(gene):
   '''
   print("x is %d, y is %d, z is %d, r is %d, color %d" % (gene.x, gene.y, gene.z, gene.r, gene.color))
 
-def get_next_population(current_population, mutator, fitnessFunction):
+def get_next_population(current_population, mutator):
   '''
   Generates the next new population.
 
@@ -127,7 +139,7 @@ def get_next_population(current_population, mutator, fitnessFunction):
     next_individual = reproduce(parent1, parent2, mutator)
     next_individual_list.append(next_individual)
 
-  next_individual_list = sorted(next_individual_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
+  next_individual_list = sorted(next_individual_list, key=lambda individual: calculate_fitness(individual), reverse=True)
 
   return Population(individuals=next_individual_list)
 
@@ -137,10 +149,9 @@ if __name__ == "__main__":
   target_image_path = input("Insert the path to the image to be used as the target: ")
 
   try:
-    target_image = Image.open(target_image_path)
-    target_image.load()
-    target_image = target_image.convert('L')
-    fitnessFunction = FitnessFunction(target_image)
+    img = Image.open(target_image_path)
+    img_as_jpg = img.convert("L")
+    img_as_jpg.save('image.jpg')
 
     width, height = target_image.size
 
@@ -168,7 +179,7 @@ if __name__ == "__main__":
 
     if(current_population is not None):
       ind_list = current_population.individuals
-      ind_list = sorted(ind_list, key=lambda individual: fitnessFunction.calculate_fitness(individual), reverse=True)
+      ind_list = sorted(ind_list, key=lambda individual: calculate_fitness(individual), reverse=True)
       current_population.individuals = ind_list
 
       count = 0
@@ -176,13 +187,13 @@ if __name__ == "__main__":
       mutator = Mutator(width, height, mutation_chance)
 
       while True:
-        current_population = get_next_population(current_population, mutator, fitnessFunction)
+        current_population = get_next_population(current_population, mutator)
 
         if count == 0:
           im = Image.new("L", (target_image.width, target_image.height))
           im.load()
           dr = ImageDraw.Draw(im)
-          print("Best one has fitness: %f" % ((lambda individual: fitnessFunction.calculate_fitness(individual))(current_population.individuals[0])))
+          print("Best one has fitness: %f" % ((lambda individual: calculate_fitness(individual))(current_population.individuals[0])))
           genome = current_population.individuals[0].genome
           genome = sorted(genome, key=(lambda g : g.z))
 
