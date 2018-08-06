@@ -11,6 +11,7 @@ from genetic.operations.crossover import *
 from genetic.selection.selector import pick_individual
 from genetic.operations.mutator import Mutator
 from genetic.record import Record
+from multiprocessing import Pool
 
 LOAD_BALANCER_URL = 'http://127.0.0.1:5000/calculate-fitness'
 
@@ -32,6 +33,11 @@ def calculate_fitness(individual):
   fitness = json.loads(r.text)['fitness']
 
   return float(fitness)
+
+def calculate_fitnesses(individual_list):
+  pool = Pool()
+  fitnesses = pool.map(calculate_fitness, individual_list)
+  return [x for _,x in sorted(zip(fitnesses,individual_list), key=lambda pair: pair[0], reverse=True)]
 
 def print_menu():
   '''
@@ -138,8 +144,7 @@ def get_next_population(current_population, mutator):
     parent2, i = pick_individual(individual_list, i)
     next_individual = reproduce(parent1, parent2, mutator)
     next_individual_list.append(next_individual)
-
-  next_individual_list = sorted(next_individual_list, key=lambda individual: calculate_fitness(individual), reverse=True)
+  next_individual_list = calculate_fitnesses(next_individual_list)
 
   return Population(individuals=next_individual_list)
 
@@ -164,7 +169,7 @@ if __name__ == "__main__":
 
     if(current_population is not None):
       ind_list = current_population.individuals
-      ind_list = sorted(ind_list, key=lambda individual: calculate_fitness(individual), reverse=True)
+      ind_list = calculate_fitnesses(ind_list)
       current_population.individuals = ind_list
 
       count = 0
