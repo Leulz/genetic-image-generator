@@ -12,7 +12,7 @@ from genetic.selection.selector import pick_individual
 from genetic.operations.mutator import Mutator
 from genetic.record import Record
 
-LOAD_BALANCER_URL = '127.0.0.1:5000'
+LOAD_BALANCER_URL = 'http://127.0.0.1:5000/calculate-fitness'
 
 # These need to be set when the target image has been received.
 width = 0
@@ -31,7 +31,7 @@ def calculate_fitness(individual):
   r = requests.post(LOAD_BALANCER_URL, files=multiple_files)
   fitness = json.loads(r.text)['fitness']
 
-  return int(fitness)
+  return float(fitness)
 
 def print_menu():
   '''
@@ -175,7 +175,7 @@ if __name__ == "__main__":
         current_population = get_next_population(current_population, mutator)
 
         if count == 0:
-          im = Image.new("L", (target_image.width, target_image.height))
+          im = Image.new("L", (img.width, img.height))
           im.load()
           dr = ImageDraw.Draw(im)
           print("Best one has fitness: %f" % ((lambda individual: calculate_fitness(individual))(current_population.individuals[0])))
