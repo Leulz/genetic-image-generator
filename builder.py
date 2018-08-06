@@ -24,10 +24,10 @@ current_population = None
 mutation_chance = 0.0
 
 def calculate_fitness(individual):
-  with open('individual', 'wb') as individual_file:
+  with open('/home/ubuntu/individual', 'wb') as individual_file:
     pickle.dump(individual, individual_file, pickle.HIGHEST_PROTOCOL)
 
-  multiple_files = [('files', ('individual', open('individual', 'rb'))), ('files', ('image', open('image.jpg', 'rb')))]
+  multiple_files = [('files', ('individual', open('/home/ubuntu/individual', 'rb'))), ('files', ('image', open('/home/ubuntu/image.jpg', 'rb')))]
   r = requests.post(LOAD_BALANCER_URL, files=multiple_files)
   fitness = json.loads(r.text)['fitness']
 
@@ -154,8 +154,6 @@ if __name__ == "__main__":
     img_as_jpg.save('/home/ubuntu/image.jpg')
 
     width, height = img.size
-
-    print_menu()
 
     number_of_indidivuals = 50
     number_of_genes = 100
