@@ -151,7 +151,7 @@ def get_next_population(current_population, mutator):
 if __name__ == "__main__":
   signal.signal(signal.SIGINT, signal_handler)
 
-  target_image_path = "./image.png"
+  target_image_path = "/home/ubuntu/genetic-image-generator/image.png"
 
   try:
     img = Image.open(target_image_path)
