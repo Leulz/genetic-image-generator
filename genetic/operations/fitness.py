@@ -43,3 +43,7 @@ def calculate_fitness():
     f.save(path.join('/home/ubuntu', f.filename))
   
   return {'fitness': get_fitness()}
+
+if __name__ == '__main__':
+  import sys
+  app.run(host='0.0.0.0', port=sys.argv[1])

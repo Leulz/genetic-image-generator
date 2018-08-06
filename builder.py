@@ -146,36 +146,23 @@ def get_next_population(current_population, mutator):
 if __name__ == "__main__":
   signal.signal(signal.SIGINT, signal_handler)
 
-  target_image_path = input("Insert the path to the image to be used as the target: ")
+  target_image_path = "./image.png"
 
   try:
     img = Image.open(target_image_path)
     img_as_jpg = img.convert("L")
-    img_as_jpg.save('image.jpg')
+    img_as_jpg.save('/home/ubuntu/image.jpg')
 
-    width, height = target_image.size
+    width, height = img.size
 
     print_menu()
 
-    user_option = int(input("What do you want to do? Type 1 or 2: "))
+    number_of_indidivuals = 50
+    number_of_genes = 100
+    mutation_chance = 0.1
+    generated_images_path = "/home/ubuntu"
 
-    number_of_indidivuals = 0
-    number_of_genes = 0
-
-    if(user_option == 1):
-      number_of_indidivuals = int(input("Insert the number of images you want in the population: "))
-      number_of_genes = int(input("Insert the number of circles you want in the image: "))
-      mutation_chance = float(input("Insert the mutation chance: "))
-      generated_images_path = input("Insert the path that you want the population to be saved: ")
-
-      current_population = create_population(number_of_indidivuals, number_of_genes)
-    elif(user_option == 2):
-      target_file_path = input("Insert the path to the file on which the population is saved: ")
-      generated_images_path = input("Insert the path that you want the population to be saved: ")
-
-      current_population, mutation_chance = load_population(target_file_path)
-    else:
-      raise RuntimeError
+    current_population = create_population(number_of_indidivuals, number_of_genes)
 
     if(current_population is not None):
       ind_list = current_population.individuals
