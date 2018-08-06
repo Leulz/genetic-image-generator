@@ -13,7 +13,7 @@ from genetic.operations.mutator import Mutator
 from genetic.record import Record
 from multiprocessing import Pool
 
-LOAD_BALANCER_URL = 'http://127.0.0.1:5000/calculate-fitness'
+LOAD_BALANCER_URL = 'http://127.0.0.1:5005/calculate-fitness'
 
 # These need to be set when the target image has been received.
 width = 0
@@ -168,6 +168,7 @@ if __name__ == "__main__":
     current_population = create_population(number_of_indidivuals, number_of_genes)
 
     if(current_population is not None):
+      with open("/home/ubuntu/app-progress.log", 'w'): pass
       ind_list = current_population.individuals
       ind_list = calculate_fitnesses(ind_list)
       current_population.individuals = ind_list
@@ -183,7 +184,8 @@ if __name__ == "__main__":
           im = Image.new("L", (img.width, img.height))
           im.load()
           dr = ImageDraw.Draw(im)
-          print("Best one has fitness: %f" % ((lambda individual: calculate_fitness(individual))(current_population.individuals[0])))
+          with open('/home/ubuntu/app-progress.log', 'a') as prog_file:
+            prog_file.write("%f\n" % ((lambda individual: calculate_fitness(individual))(current_population.individuals[0])))
           genome = current_population.individuals[0].genome
           genome = sorted(genome, key=(lambda g : g.z))
 
@@ -197,7 +199,7 @@ if __name__ == "__main__":
           im.close()
           saves += 1
 
-        count = (count + 1) % 20
+        count = (count + 1) % 1
     else:
       raise TypeError
   except IOError:
