@@ -12,6 +12,8 @@ from genetic.selection.selector import pick_individual
 from genetic.operations.mutator import Mutator
 from genetic.record import Record
 from multiprocessing import Pool
+import json
+from base64 import b64encode
 
 LOAD_BALANCER_URL = 'http://127.0.0.1:5005/calculate-fitness'
 
@@ -25,11 +27,8 @@ current_population = None
 mutation_chance = 0.0
 
 def calculate_fitness(individual):
-  with open('/home/ubuntu/individual', 'wb') as individual_file:
-    pickle.dump(individual, individual_file, pickle.HIGHEST_PROTOCOL)
-
-  multiple_files = [('files', ('individual', open('/home/ubuntu/individual', 'rb'))), ('files', ('image', open('/home/ubuntu/image.jpg', 'rb')))]
-  r = requests.post(LOAD_BALANCER_URL, files=multiple_files)
+  str_individual = pickle.dumps(individual, pickle.HIGHEST_PROTOCOL)
+  r = requests.post(LOAD_BALANCER_URL, data=json.dumps({"individual": b64encode(str_individual)}))
   fitness = json.loads(r.text)['fitness']
 
   return float(fitness)
