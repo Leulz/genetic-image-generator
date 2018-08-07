@@ -36,6 +36,8 @@ def calculate_fitness(individual):
 def calculate_fitnesses(individual_list):
   pool = Pool()
   fitnesses = pool.map(calculate_fitness, individual_list)
+  pool.close()
+  pool.join()
   return [x for _,x in sorted(zip(fitnesses,individual_list), key=lambda pair: pair[0], reverse=True)]
 
 def print_menu():
